@@ -11,4 +11,4 @@ class AI:
                    if (r, c) not in self.tried]
         pos = random.choice(options)
         self.tried.add(pos)
-        return f"{pos[0] + 1},{pos[1] + 1}"  # intentional representation mismatch
+        return pos  
