@@ -6,9 +6,10 @@ class Board:
     SIZE = 6
 
     def __init__(self):
-        self.ships = []
-        self.shots = set()
+        self.ships = []          # list of Ship
+        self.shots = set()       # all cells fired at
 
+    # --- placement (from Task 2) ---
     def add_ship(self, name, cells):
         ship = Ship(name, cells)
         self.ships.append(ship)
@@ -17,7 +18,6 @@ class Board:
     def place_fleet(self, fleet):
         """fleet: list of (name, length) tuples.
         Randomly places each ship, non-overlapping, inside the board.
-        Raises RuntimeError if it can't place after many attempts.
         """
         occupied = set()
         for name, length in fleet:
@@ -31,7 +31,6 @@ class Board:
         for _ in range(max_attempts):
             horizontal = random.choice([True, False])
             if horizontal:
-                # row in [0, SIZE-1], col such that col+length <= SIZE
                 r = random.randrange(self.SIZE)
                 c = random.randrange(self.SIZE - length + 1)
                 cells = {(r, c + i) for i in range(length)}
@@ -44,10 +43,16 @@ class Board:
                 return cells
         return None
 
+    # --- firing (from Task 1, refined in Task 4) ---
     def already_shot(self, pos):
         return pos in self.shots
 
     def fire(self, pos):
+        """The ONLY place a shot resolves.
+        Returns (result, sunk_ship_name_or_None).
+        result in {'hit', 'miss', 'repeat'}.
+        Never prints anything.
+        """
         if pos in self.shots:
             return "repeat", None
         self.shots.add(pos)
@@ -58,6 +63,7 @@ class Board:
                 return "hit", None
         return "miss", None
 
+    # --- win conditions (from Task 2) ---
     def all_sunk(self):
         return all(ship.is_sunk() for ship in self.ships)
 
