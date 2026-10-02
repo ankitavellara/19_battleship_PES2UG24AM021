@@ -2,6 +2,14 @@ from board import Board
 from ai import AI
 
 
+# (name, length)
+FLEET = [
+    ("Destroyer", 3),
+    ("Submarine", 2),
+    ("Patrol",    3),
+]
+
+
 class Battleship:
     def __init__(self):
         self.player = Board()
@@ -10,15 +18,9 @@ class Battleship:
         self._setup()
 
     def _setup(self):
-        # Enemy fleet (player shoots at this)
-        self.enemy.add_ship("Destroyer",  {(2, 2), (2, 3), (2, 4)})
-        self.enemy.add_ship("Submarine",  {(0, 0), (1, 0)})
-        self.enemy.add_ship("Patrol",     {(4, 4), (4, 5), (5, 5)})
-
-        # Player fleet (AI shoots at this)
-        self.player.add_ship("Destroyer", {(1, 1), (1, 2), (1, 3)})
-        self.player.add_ship("Submarine", {(3, 0), (4, 0)})
-        self.player.add_ship("Patrol",    {(5, 2), (5, 3), (5, 4)})
+        # Each side gets its own randomly-placed fleet.
+        self.player.place_fleet(FLEET)
+        self.enemy.place_fleet(FLEET)
 
     def show(self):
         print("\nYour shots are coordinates like 2,3.")
@@ -48,10 +50,7 @@ class Battleship:
                 print("Already fired there.")
                 continue
             elif result == "hit":
-                if sunk:
-                    print(f"HIT! You sank the enemy {sunk}!")
-                else:
-                    print("HIT!")
+                print(f"HIT! You sank the enemy {sunk}!" if sunk else "HIT!")
             else:
                 print("MISS!")
 
@@ -68,10 +67,7 @@ class Battleship:
 
             ai_result, ai_sunk = self.player.fire(ai_pos)
             if ai_result == "hit":
-                if ai_sunk:
-                    print(f"AI sank your {ai_sunk}!")
-                else:
-                    print("AI scored a hit.")
+                print(f"AI sank your {ai_sunk}!" if ai_sunk else "AI scored a hit.")
             else:
                 print("AI missed.")
 
