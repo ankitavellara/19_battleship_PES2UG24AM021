@@ -1,5 +1,20 @@
 import random
-from ship import Ship
+
+
+class Ship:
+    def __init__(self, name, cells):
+        self.name = name
+        self.cells = set(cells)
+        self.hits = set()
+
+    def hit(self, pos):
+        if pos in self.cells:
+            self.hits.add(pos)
+            return True
+        return False
+
+    def is_sunk(self):
+        return self.cells <= self.hits
 
 
 class Board:
@@ -9,7 +24,7 @@ class Board:
         self.ships = []          # list of Ship
         self.shots = set()       # all cells fired at
 
-    # --- placement (from Task 2) ---
+    # --- placement ---
     def add_ship(self, name, cells):
         ship = Ship(name, cells)
         self.ships.append(ship)
@@ -43,7 +58,7 @@ class Board:
                 return cells
         return None
 
-    # --- firing (from Task 1, refined in Task 4) ---
+    # --- firing ---
     def already_shot(self, pos):
         return pos in self.shots
 
@@ -63,7 +78,7 @@ class Board:
                 return "hit", None
         return "miss", None
 
-    # --- win conditions (from Task 2) ---
+    # --- win conditions ---
     def all_sunk(self):
         return all(ship.is_sunk() for ship in self.ships)
 
