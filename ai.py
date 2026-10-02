@@ -9,6 +9,8 @@ class AI:
     def choose(self):
         options = [(r, c) for r in range(self.size) for c in range(self.size)
                    if (r, c) not in self.tried]
+        if not options:
+            return None
         pos = random.choice(options)
         self.tried.add(pos)
-        return pos  
+        return pos  # 0-indexed (row, col) tuple
