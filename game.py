@@ -2,7 +2,6 @@ from board import Board
 from ai import AI
 
 
-# (name, length)
 FLEET = [
     ("Destroyer", 3),
     ("Submarine", 2),
@@ -18,7 +17,6 @@ class Battleship:
         self._setup()
 
     def _setup(self):
-        # Each side gets its own randomly-placed fleet.
         self.player.place_fleet(FLEET)
         self.enemy.place_fleet(FLEET)
 
@@ -68,8 +66,10 @@ class Battleship:
             ai_result, ai_sunk = self.player.fire(ai_pos)
             if ai_result == "hit":
                 print(f"AI sank your {ai_sunk}!" if ai_sunk else "AI scored a hit.")
+                self.ai.report(ai_pos, "sunk" if ai_sunk else "hit")
             else:
                 print("AI missed.")
+                self.ai.report(ai_pos, "miss")
 
             if self.player.all_sunk():
                 print("AI sank your entire fleet. You lose.")
