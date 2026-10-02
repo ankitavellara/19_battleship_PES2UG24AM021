@@ -24,14 +24,13 @@ class Battleship:
         print("\nYour shots are coordinates like 2,3.")
         print("Enemy ships remaining:", self.enemy.ships_remaining())
 
-    def run(self):
-        print("Battleship")
+    # --- Player turn: exactly one feedback line per actual shot ---
+    def player_turn(self):
         while True:
             self.show()
             raw = input("> ").strip().lower()
             if raw == "q":
-                print("Goodbye.")
-                return
+                return "quit"
             try:
                 r, c = map(int, raw.split(","))
                 pos = (r - 1, c - 1)
@@ -44,9 +43,10 @@ class Battleship:
                 continue
 
             result, sunk = self.enemy.fire(pos)
+
             if result == "repeat":
                 print("Already fired there.")
-                continue
+                continue  # no shot consumed, no hit/miss feedback
             elif result == "hit":
                 print(f"HIT! You sank the enemy {sunk}!" if sunk else "HIT!")
             else:
@@ -54,23 +54,43 @@ class Battleship:
 
             if self.enemy.all_sunk():
                 print("You sank the entire enemy fleet. You win!")
+                return "win"
+            return "ok"
+
+    # --- AI turn: exactly one feedback line per actual shot ---
+    def ai_turn(self):
+        ai_pos = self.ai.choose()
+        if ai_pos is None:
+            print("AI has no moves left. Draw.")
+            return "draw"
+
+        print("AI fired at", f"{ai_pos[0] + 1},{ai_pos[1] + 1}")
+        result, sunk = self.player.fire(ai_pos)
+
+        if result == "hit":
+            print(f"AI sank your {sunk}!" if sunk else "AI scored a hit.")
+            self.ai.report(ai_pos, "sunk" if sunk else "hit")
+        else:
+            print("AI missed.")
+            self.ai.report(ai_pos, "miss")
+
+        if self.player.all_sunk():
+            print("AI sank your entire fleet. You lose.")
+            return "lose"
+        return "ok"
+
+    def run(self):
+        print("Battleship")
+        while True:
+            outcome = self.player_turn()
+            if outcome == "quit":
+                print("Goodbye.")
+                return
+            if outcome == "win":
                 return
 
-            # --- AI turn ---
-            ai_pos = self.ai.choose()
-            if ai_pos is None:
-                print("AI has no moves left. Draw.")
+            outcome = self.ai_turn()
+            if outcome == "draw":
                 return
-            print("AI fired at", f"{ai_pos[0] + 1},{ai_pos[1] + 1}")
-
-            ai_result, ai_sunk = self.player.fire(ai_pos)
-            if ai_result == "hit":
-                print(f"AI sank your {ai_sunk}!" if ai_sunk else "AI scored a hit.")
-                self.ai.report(ai_pos, "sunk" if ai_sunk else "hit")
-            else:
-                print("AI missed.")
-                self.ai.report(ai_pos, "miss")
-
-            if self.player.all_sunk():
-                print("AI sank your entire fleet. You lose.")
+            if outcome == "lose":
                 return
